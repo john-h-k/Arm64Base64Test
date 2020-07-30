@@ -14,7 +14,13 @@ namespace Arm64Base64Test
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var bytes = new byte[] { 83, 65, 66, 108, 65, 71, 119, 65, 98, 65, 66, 118, 65, 67, 65, 65, 86, 119, 66, 118, 65, 72, 73, 65, 98, 65, 66, 107, 65, 67, 69, 65 };
+            var result = new byte[1024];
+
+            var op = Base64.DecodeFromUtf8(bytes, result, out _, out var written);
+            Console.WriteLine(op);
+
+            Console.WriteLine(MemoryMarshal.Cast<byte, char>(result.AsSpan(0, written)).ToString());
         }
     }
 
