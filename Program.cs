@@ -609,11 +609,16 @@ public static class Base64
             if (Sse2.MoveMask(Sse2.CompareGreaterThan(Sse2.And(lo, hi), zero)) != 0)
                 break;
 
+            Console.WriteLine(hi);
+            Console.WriteLine(lo);
+
             Vector128<sbyte> eq2F = Sse2.CompareEqual(str, mask2F);
             Vector128<sbyte> shift = Ssse3.Shuffle(lutShift, Sse2.Add(eq2F, hiNibbles));
 
             // Now simply add the delta values to the input:
             str = Sse2.Add(str, shift);
+
+            Console.WriteLine(str);
 
             // in, bits, upper case are most significant bits, lower case are least significant bits
             // 00llllll 00kkkkLL 00jjKKKK 00JJJJJJ
@@ -685,11 +690,16 @@ public static class Base64
             if (AdvSimd.Arm64.MaxAcross(AdvSimd.And(lo, hi)).ToScalar() != 0)
                 break;
 
+            Console.WriteLine(hi);
+            Console.WriteLine(lo);
+
             Vector128<sbyte> eq2F = AdvSimd.CompareEqual(str, mask2F);
             Vector128<sbyte> shift = AdvSimd.Arm64.VectorTableLookup(lutShift, AdvSimd.Add(eq2F, hiNibbles));
 
             // Now simply add the delta values to the input:
             str = AdvSimd.Add(str, shift);
+
+            Console.WriteLine(str);
 
             // in, bits, upper case are most significant bits, lower case are least significant bits
             // 00llllll 00kkkkLL 00jjKKKK 00JJJJJJ
