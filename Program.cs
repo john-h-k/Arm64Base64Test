@@ -761,7 +761,9 @@ public static class Base64
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static unsafe void AvdSimd64Decode_VectorLookup(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
     {
-        byte* src = srcBytes;
+        Console.WriteLine("AvdSimd64Decode_VectorLookup");
+
+        byte * src = srcBytes;
         byte* dest = destBytes;
 
         var offset = Vector128.Create((byte)63);
@@ -780,6 +782,7 @@ public static class Base64
 
         do
         {
+            Console.WriteLine("hi loop");
             Vector128<byte> int0, int1, int2, int3;
             Vector128<byte> tmp0, tmp1, tmp2, tmp3;
             Vector128<byte> res0, res1, res2;
