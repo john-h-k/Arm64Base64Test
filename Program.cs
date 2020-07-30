@@ -294,11 +294,9 @@ public static class Base64
             byte* srcEnd = srcBytes + (uint)srcLength;
             byte* srcMax = srcBytes + (uint)maxSrcLength;
 
-            if (maxSrcLength >= 24)
+            if (maxSrcLength > 64)
             {
-                byte* end = srcMax - 45;
-
-
+                byte* end = srcMax - 64;
                 if (AdvSimd.Arm64.IsSupported && (end >= src))
                 {
                     AvdSimd64Decode_VectorLookup(ref src, ref dest, end, maxSrcLength, destLength, srcBytes, destBytes);
@@ -307,7 +305,12 @@ public static class Base64
                         goto DoneExit;
                 }
 
-                end = srcMax - 45;
+            }
+
+            if (maxSrcLength >= 24)
+            {
+                byte* end = srcMax - 45;
+
                 if (false && Avx2.IsSupported && (end >= src))
                 {
                     Ssse3Decode(ref src, ref dest, end, maxSrcLength, destLength, srcBytes, destBytes);
