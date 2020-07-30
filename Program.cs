@@ -22,7 +22,7 @@ namespace Arm64Base64Test
             {
                 var src = pSrc;
                 var end = pEnd;
-                Base64.AvdSimd64Decode_VectorLookup(ref src, ref end, pSrc + 128, 128, 128, pSrc, pEnd);
+                Base64.AvdSimd64Decode_VectorLookup(ref src, ref end, pSrc + 64, 128, 128, pSrc, pEnd);
 
                 Console.WriteLine(MemoryMarshal.Cast<byte, char>(result.AsSpan(0, written)).ToString());
             }
