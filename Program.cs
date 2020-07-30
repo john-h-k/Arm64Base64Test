@@ -767,16 +767,16 @@ public static class Base64
         var offset = Vector128.Create((byte)63);
 
         Vector128<byte> lookup0_0, lookup0_1, lookup0_2, lookup0_3;
-        lookup0_0 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1);
-        lookup0_1 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1);
-        lookup0_2 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1);
-        lookup0_3 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1);
+        lookup0_0 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1.Slice(16 * 0));
+        lookup0_1 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1.Slice(16 * 1));
+        lookup0_2 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1.Slice(16 * 2));
+        lookup0_3 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut1.Slice(16 * 3));
 
         Vector128<byte> lookup1_0, lookup1_1, lookup1_2, lookup1_3;
-        lookup1_0 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2);
-        lookup1_1 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2);
-        lookup1_2 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2);
-        lookup1_3 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2);
+        lookup1_0 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2.Slice(16 * 0));
+        lookup1_1 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2.Slice(16 * 1));
+        lookup1_2 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2.Slice(16 * 2));
+        lookup1_3 = ReadVector<Vector128<byte>>(s_advSimd64DecodeLut2.Slice(16 * 3));
 
         do
         {
