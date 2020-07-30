@@ -1,0 +1,60 @@
+{
+  "format": 1,
+  "restore": {
+    "C:\\Users\\johnk\\source\\repos\\Arm64Base64Test\\Arm64Base64Test\\Arm64Base64Test.csproj": {}
+  },
+  "projects": {
+    "C:\\Users\\johnk\\source\\repos\\Arm64Base64Test\\Arm64Base64Test\\Arm64Base64Test.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "C:\\Users\\johnk\\source\\repos\\Arm64Base64Test\\Arm64Base64Test\\Arm64Base64Test.csproj",
+        "projectName": "Arm64Base64Test",
+        "projectPath": "C:\\Users\\johnk\\source\\repos\\Arm64Base64Test\\Arm64Base64Test\\Arm64Base64Test.csproj",
+        "packagesPath": "C:\\Users\\johnk\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\johnk\\source\\repos\\Arm64Base64Test\\Arm64Base64Test\\obj\\",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "C:\\Users\\johnk\\source\\repos\\NuGet.Config",
+          "C:\\Users\\johnk\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net50"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {},
+          "https://dotnet.myget.org/F/roslyn/api/v3/index.json": {},
+          "https://pkgs.dev.azure.com/dnceng/public/_packaging/dotnet5/nuget/v3/index.json": {},
+          "https://pkgs.dev.azure.com/tagoo/terrafx/_packaging/terrafx%40Local/nuget/v3/index.json": {}
+        },
+        "frameworks": {
+          "net50": {
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        }
+      },
+      "frameworks": {
+        "net50": {
+          "dependencies": {
+            "BenchmarkDotNet": {
+              "target": "Package",
+              "version": "[0.12.1, )"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\3.1.202\\RuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win7-x86": {
+          "#import": []
+        }
+      }
+    }
+  }
+}
