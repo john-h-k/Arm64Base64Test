@@ -761,8 +761,6 @@ public static class Base64
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static unsafe void AvdSimd64Decode_VectorLookup(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
     {
-        Console.WriteLine("AvdSimd64Decode_VectorLookup");
-
         byte* src = srcBytes;
         byte* dest = destBytes;
 
