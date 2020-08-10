@@ -589,7 +589,7 @@ public static class Base64
             Vector128<sbyte> shift = Ssse3.Shuffle(lutShift, Sse2.Add(eq2F, hiNibbles));
 
             // Now simply add the delta values to the input:
-            str = Sse2.Add(str, shift
+            str = Sse2.Add(str, shift);
 
             Console.WriteLine(str);
 
