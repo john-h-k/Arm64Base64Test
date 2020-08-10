@@ -577,6 +577,9 @@ public static class Base64
             Vector128<sbyte> hi = Ssse3.Shuffle(lutHi, hiNibbles);
             Vector128<sbyte> lo = Ssse3.Shuffle(lutLo, loNibbles);
 
+            Console.WriteLine(hi);
+            Console.WriteLine(lo);
+
             // Check for invalid input: if any "and" values from lo and hi are not zero,
             // fall back on bytewise code to do error checking and reporting:
             if (Sse2.MoveMask(Sse2.CompareGreaterThan(Sse2.And(lo, hi), zero)) != 0)
@@ -658,6 +661,9 @@ public static class Base64
             Vector128<sbyte> loNibbles = AdvSimd.And(str, mask2F);
             Vector128<sbyte> hi = AdvSimd.Arm64.VectorTableLookup(lutHi, AdvSimd.And(hiNibbles, mask0F));
             Vector128<sbyte> lo = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles);
+
+            Console.WriteLine(hi);
+            Console.WriteLine(lo);
 
             // Check for invalid input: if any "and" values from lo and hi are not zero,
             // fall back on bytewise code to do error checking and reporting:
