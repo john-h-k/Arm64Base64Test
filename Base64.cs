@@ -608,11 +608,14 @@ public static class Base64
             // 0000eeee FFffffff 0000DDDD DDddEEEE
             // 0000bbbb CCcccccc 0000AAAA AAaaBBBB
 
+            Console.WriteLine(merge_ab_and_bc);
+
             Vector128<int> output = Sse2.MultiplyAddAdjacent(merge_ab_and_bc, mergeConstant1);
             // 00000000 JJJJJJjj KKKKkkkk LLllllll
             // 00000000 GGGGGGgg HHHHhhhh IIiiiiii
             // 00000000 DDDDDDdd EEEEeeee FFffffff
             // 00000000 AAAAAAaa BBBBbbbb CCcccccc
+            Console.WriteLine(output);
 
             // Pack bytes together:
             str = Ssse3.Shuffle(output.AsSByte(), packBytesMask);
@@ -620,6 +623,8 @@ public static class Base64
             // LLllllll KKKKkkkk JJJJJJjj IIiiiiii
             // HHHHhhhh GGGGGGgg FFffffff EEEEeeee
             // DDDDDDdd CCcccccc BBBBbbbb AAAAAAaa
+
+            Console.WriteLine(str);
 
             AssertWrite<Vector128<sbyte>>(dest, destStart, destLength);
             Sse2.Store(dest, str.AsByte());
@@ -699,6 +704,7 @@ public static class Base64
             // 0000eeee FFffffff 0000DDDD DDddEEEE
             // 0000bbbb CCcccccc 0000AAAA AAaaBBBB
 
+            Console.WriteLine(merge_ab_and_bc);
 
             Vector128<int> outputLo = AdvSimd.MultiplyWideningLower(merge_ab_and_bc.GetLower(), mergeConstant1.GetLower());
             Vector128<int> outputHi = AdvSimd.MultiplyWideningUpper(merge_ab_and_bc, mergeConstant1);
@@ -711,6 +717,7 @@ public static class Base64
             // 00000000 GGGGGGgg HHHHhhhh IIiiiiii
             // 00000000 DDDDDDdd EEEEeeee FFffffff
             // 00000000 AAAAAAaa BBBBbbbb CCcccccc
+            Console.WriteLine(output);
 
             // Pack bytes together:
             str = AdvSimd.Arm64.VectorTableLookup(output.AsSByte(), AdvSimd.And(packBytesMask, mask0F));
@@ -718,6 +725,8 @@ public static class Base64
             // LLllllll KKKKkkkk JJJJJJjj IIiiiiii
             // HHHHhhhh GGGGGGgg FFffffff EEEEeeee
             // DDDDDDdd CCcccccc BBBBbbbb AAAAAAaa
+
+            Console.WriteLine(str);
 
             AssertWrite<Vector128<sbyte>>(dest, destStart, destLength);
             AdvSimd.Store(dest, str.AsByte());
