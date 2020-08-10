@@ -660,7 +660,7 @@ public static class Base64
             Vector128<sbyte> hiNibbles = AdvSimd.And(AdvSimd.ShiftRightLogical(str.AsInt32(), 4).AsSByte(), mask2F);
             Vector128<sbyte> loNibbles = AdvSimd.And(str, mask2F);
             Vector128<sbyte> hi = AdvSimd.Arm64.VectorTableLookup(lutHi, AdvSimd.And(hiNibbles, mask0F));
-            Vector128<sbyte> lo = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles);
+            Vector128<sbyte> lo = AdvSimd.Arm64.VectorTableLookup(lutLo, AdvSimd.And(loNibbles, mask0F));
 
             Console.WriteLine(hi);
             Console.WriteLine(lo);
