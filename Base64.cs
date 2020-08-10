@@ -674,7 +674,7 @@ public static class Base64
             Console.WriteLine(lo);
 
             Vector128<sbyte> eq2F = AdvSimd.CompareEqual(str, mask2F);
-            Vector128<sbyte> shift = AdvSimd.Arm64.VectorTableLookup(lutShift, AdvSimd.Add(eq2F, hiNibbles));
+            Vector128<sbyte> shift = AdvSimd.Arm64.VectorTableLookup(lutShift, AdvSimd.And(AdvSimd.Add(eq2F, hiNibbles, mask0F));
 
             // Now simply add the delta values to the input:
             str = AdvSimd.Add(str, shift);
@@ -713,7 +713,7 @@ public static class Base64
             // 00000000 AAAAAAaa BBBBbbbb CCcccccc
 
             // Pack bytes together:
-            str = AdvSimd.Arm64.VectorTableLookup(output.AsSByte(), packBytesMask);
+            str = AdvSimd.Arm64.VectorTableLookup(output.AsSByte(), AdvSimd.And(packBytesMask, mask0F));
             // 00000000 00000000 00000000 00000000
             // LLllllll KKKKkkkk JJJJJJjj IIiiiiii
             // HHHHhhhh GGGGGGgg FFffffff EEEEeeee
