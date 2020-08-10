@@ -589,7 +589,7 @@ public static class Base64
             Vector128<sbyte> shift = Ssse3.Shuffle(lutShift, Sse2.Add(eq2F, hiNibbles));
 
             // Now simply add the delta values to the input:
-            str = Sse2.Add(str, shift);
+            str = Sse2.Add(str, shift
 
             Console.WriteLine(str);
 
@@ -638,6 +638,7 @@ public static class Base64
         Vector128<sbyte> lutLo = ReadVector<Vector128<sbyte>>(s_sseDecodeLutLo);
         Vector128<sbyte> lutShift = ReadVector<Vector128<sbyte>>(s_sseDecodeLutShift);
         Vector128<sbyte> mask2F = Vector128.Create((sbyte)'/');
+        Vector128<sbyte> mask0F = Vector128.Create((sbyte)0x0F);
         Vector128<sbyte> mergeConstant0 = Vector128.Create(0x01400140).AsSByte();
         Vector128<short> mergeConstant1 = Vector128.Create(0x00011000).AsInt16();
         Vector128<sbyte> packBytesMask = ReadVector<Vector128<sbyte>>(s_sseDecodePackBytesMask);
@@ -655,7 +656,7 @@ public static class Base64
             // lookup
             Vector128<sbyte> hiNibbles = AdvSimd.And(AdvSimd.ShiftRightLogical(str.AsInt32(), 4).AsSByte(), mask2F);
             Vector128<sbyte> loNibbles = AdvSimd.And(str, mask2F);
-            Vector128<sbyte> hi = AdvSimd.Arm64.VectorTableLookup(lutHi, hiNibbles);
+            Vector128<sbyte> hi = AdvSimd.Arm64.VectorTableLookup(lutHi, AdvSimd.And(hiNibbles, mask0F));
             Vector128<sbyte> lo = AdvSimd.Arm64.VectorTableLookup(lutLo, loNibbles);
 
             // Check for invalid input: if any "and" values from lo and hi are not zero,
