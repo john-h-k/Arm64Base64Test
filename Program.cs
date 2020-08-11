@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Diagnostics;
 using BenchmarkDotNet.Attributes;
+using System.Text;
 
 namespace Arm64Base64Test
 {
@@ -13,7 +14,14 @@ namespace Arm64Base64Test
             var bytes = new byte[] { 83, 65, 66, 108, 65, 71, 119, 65, 98, 65, 66, 118, 65, 67, 65, 65, 86, 119, 66, 118, 65, 72, 73, 65, 98, 65, 66, 107, 65, 67, 69, 65, 73, 65, 66, 73, 65, 71, 85, 65, 98, 65, 66, 115, 65, 71, 56, 65, 73, 65, 66, 88, 65, 71, 56, 65, 99, 103, 66, 115, 65, 71, 81, 65, 73, 81, 65, 103, 65, 69, 103, 65, 90, 81, 66, 115, 65, 71, 119, 65, 98, 119, 65, 103, 65, 70, 99, 65, 98, 119, 66, 121, 65, 71, 119, 65, 90, 65, 65, 104, 65, 67, 65, 65, 83, 65, 66, 108, 65, 71, 119, 65, 98, 65, 66, 118, 65, 67, 65, 65, 86, 119, 66, 118, 65, 72, 73, 65, 98, 65, 66, 107, 65, 67, 69, 65, 73, 65, 66, 73, 65, 71, 85, 65, 98, 65, 66, 115, 65, 71, 56, 65, 73, 65, 66, 88, 65, 71, 56, 65, 99, 103, 66, 115, 65, 71, 81, 65, 73, 81, 65, 103, 65, 69, 103, 65, 90, 81, 66, 115, 65, 71, 119, 65, 98, 119, 65, 103, 65, 70, 99, 65, 98, 119, 66, 121, 65, 71, 119, 65, 90, 65, 65, 104, 65, 67, 65, 65, 83, 65, 66, 108, 65, 71, 119, 65, 98, 65, 66, 118, 65, 67, 65, 65, 86, 119, 66, 118, 65, 72, 73, 65, 98, 65, 66, 107, 65, 67, 69, };
             var result = new byte[1024];
 
-            var op = Base64.DecodeFromUtf8_VectorLookup(bytes, result, out _, out var written);
+            var text = MemoryMarshal.Cast<char, byte>("Hello world! Hello sort order!".AsSpan());
+
+            var encoded = new byte[1024];
+
+            var op = Base64.EncodeToUtf8(text, encoded, out _, out int encodedWritten);
+            Console.WriteLine(op);
+
+            op = Base64.DecodeFromUtf8_VectorLookup(encoded, result, out _, out var written);
             Console.WriteLine(op);
 
             Console.WriteLine(MemoryMarshal.Cast<byte, char>(result.AsSpan(0, written)).ToString());

@@ -33,6 +33,181 @@ public static class Base64
         return (length >> 2) * 3;
     }
 
+    public static unsafe OperationStatus EncodeToUtf8(ReadOnlySpan<byte> bytes, Span<byte> utf8, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true)
+        {
+            if (bytes.IsEmpty)
+            {
+                bytesConsumed = 0;
+                bytesWritten = 0;
+                return OperationStatus.Done;
+            }
+ 
+            fixed (byte* srcBytes = &MemoryMarshal.GetReference(bytes))
+            fixed (byte* destBytes = &MemoryMarshal.GetReference(utf8))
+            {
+                int srcLength = bytes.Length;
+                int destLength = utf8.Length;
+                int maxSrcLength;
+ 
+                if (srcLength <= 1610612733 && destLength >= GetMaxEncodedToUtf8Length(srcLength))
+                {
+                    maxSrcLength = srcLength;
+                }
+                else
+                {
+                    maxSrcLength = (destLength >> 2) * 3;
+                }
+ 
+                byte* src = srcBytes;
+                byte* dest = destBytes;
+                byte* srcEnd = srcBytes + (uint)srcLength;
+                byte* srcMax = srcBytes + (uint)maxSrcLength;
+ 
+                if (maxSrcLength >= 16)
+                {
+                    byte* end = srcMax - 48;
+                    if (AdvSimd.Arm64.IsSupported && (end >= src))
+                    {
+                        AdvSimd64Encode(ref src, ref dest, end, maxSrcLength, destLength, srcBytes, destBytes);
+ 
+                        if (src == srcEnd)
+                            goto DoneExit;
+                    }
+
+                    end = srcMax - 32;
+                    if (Avx2.IsSupported && (end >= src))
+                    {
+                        throw null!; //Avx2Encode(ref src, ref dest, end, maxSrcLength, destLength, srcBytes, destBytes);
+ 
+                        if (src == srcEnd)
+                            goto DoneExit;
+                    }
+ 
+                    end = srcMax - 16;
+                    if (Ssse3.IsSupported && (end >= src))
+                    {
+                        throw null!; //Ssse3Encode(ref src, ref dest, end, maxSrcLength, destLength, srcBytes, destBytes);
+ 
+                        if (src == srcEnd)
+                            goto DoneExit;
+                    }
+                }
+ 
+                ref byte encodingMap = ref MemoryMarshal.GetReference(s_encodingMap);
+                uint result = 0;
+ 
+                srcMax -= 2;
+                while (src < srcMax)
+                {
+                    result = Encode(src, ref encodingMap);
+                    Unsafe.WriteUnaligned(dest, result);
+                    src += 3;
+                    dest += 4;
+                }
+ 
+                if (srcMax + 2 != srcEnd)
+                    goto DestinationTooSmallExit;
+ 
+                if (!isFinalBlock)
+                {
+                    if (src == srcEnd)
+                        goto DoneExit;
+ 
+                    goto NeedMoreData;
+                }
+ 
+                if (src + 1 == srcEnd)
+                {
+                    result = EncodeAndPadTwo(src, ref encodingMap);
+                    Unsafe.WriteUnaligned(dest, result);
+                    src += 1;
+                    dest += 4;
+                }
+                else if (src + 2 == srcEnd)
+                {
+                    result = EncodeAndPadOne(src, ref encodingMap);
+                    Unsafe.WriteUnaligned(dest, result);
+                    src += 2;
+                    dest += 4;
+                }
+ 
+            DoneExit:
+                bytesConsumed = (int)(src - srcBytes);
+                bytesWritten = (int)(dest - destBytes);
+                return OperationStatus.Done;
+ 
+            DestinationTooSmallExit:
+                bytesConsumed = (int)(src - srcBytes);
+                bytesWritten = (int)(dest - destBytes);
+                return OperationStatus.DestinationTooSmall;
+ 
+            NeedMoreData:
+                bytesConsumed = (int)(src - srcBytes);
+                bytesWritten = (int)(dest - destBytes);
+                return OperationStatus.NeedMoreData;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe uint Encode(byte* threeBytes, ref byte encodingMap)
+        {
+            uint t0 = threeBytes[0];
+            uint t1 = threeBytes[1];
+            uint t2 = threeBytes[2];
+ 
+            uint i = (t0 << 16) | (t1 << 8) | t2;
+ 
+            uint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
+            uint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
+            uint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
+            uint i3 = Unsafe.Add(ref encodingMap, (IntPtr)(i & 0x3F));
+ 
+            return i0 | (i1 << 8) | (i2 << 16) | (i3 << 24);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe uint EncodeAndPadOne(byte* twoBytes, ref byte encodingMap)
+        {
+            uint t0 = twoBytes[0];
+            uint t1 = twoBytes[1];
+ 
+            uint i = (t0 << 16) | (t1 << 8);
+ 
+            uint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 18));
+            uint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 12) & 0x3F));
+            uint i2 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 6) & 0x3F));
+ 
+            return i0 | (i1 << 8) | (i2 << 16) | (EncodingPad << 24);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private static unsafe uint EncodeAndPadTwo(byte* oneByte, ref byte encodingMap)
+        {
+            uint t0 = oneByte[0];
+ 
+            uint i = t0 << 8;
+ 
+            uint i0 = Unsafe.Add(ref encodingMap, (IntPtr)(i >> 10));
+            uint i1 = Unsafe.Add(ref encodingMap, (IntPtr)((i >> 4) & 0x3F));
+ 
+            return i0 | (i1 << 8) | (EncodingPad << 16) | (EncodingPad << 24);
+        }
+ 
+        /// <summary>
+        /// Returns the maximum length (in bytes) of the result if you were to encode binary data within a byte span of size "length".
+        /// </summary>
+        /// <exception cref="System.ArgumentOutOfRangeException">
+        /// Thrown when the specified <paramref name="length"/> is less than 0 or larger than 1610612733 (since encode inflates the data by 4/3).
+        /// </exception>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int GetMaxEncodedToUtf8Length(int length)
+        {
+            if ((uint)length > 1610612733)
+                ThrowHelper.ThrowArgumentOutOfRangeException(ExceptionArgument.length);
+ 
+            return ((length + 2) / 3) * 4;
+        }
+
     public static unsafe OperationStatus DecodeFromUtf8(ReadOnlySpan<byte> utf8, Span<byte> bytes, out int bytesConsumed, out int bytesWritten, bool isFinalBlock = true)
     {
         if (utf8.IsEmpty)
@@ -754,6 +929,99 @@ public static class Base64
         srcBytes = src;
         destBytes = dest;
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static unsafe void AdvSimd64Encode(ref byte* srcBytes, ref byte* destBytes, byte* srcEnd, int sourceLength, int destLength, byte* srcStart, byte* destStart)
+    {
+        byte* src = srcBytes;
+        byte* dest = destBytes;
+
+        var maskTopBits = Vector128.Create((byte)0x3F);
+
+        Vector128<byte> lookup0, lookup1, lookup2, lookup3;
+        lookup0 = ReadVector<Vector128<byte>>(s_encodingMap);
+        lookup1 = ReadVector<Vector128<byte>>(s_encodingMap);
+        lookup2 = ReadVector<Vector128<byte>>(s_encodingMap);
+        lookup3 = ReadVector<Vector128<byte>>(s_encodingMap);
+
+        //while (remaining >= 48)
+        do
+        {
+            AssertRead<Vector128<byte>>(src + 32, srcStart, sourceLength);
+            // TODO translate this triple VLD1 to a single VLD3
+            var str0 = AdvSimd.LoadVector128(src);
+            var str1 = AdvSimd.LoadVector128(src + 16);
+            var str2 = AdvSimd.LoadVector128(src + 32);
+
+            Vector128<byte> res0, res1, res2, res3;
+            Vector128<byte> int0, int1, int2, int3;
+
+            // reshuffle
+
+            int0 = AdvSimd.ShiftRightLogical(str0, 2);
+            int1 = AdvSimd.Or(AdvSimd.ShiftRightLogical(str1, 4), AdvSimd.ShiftLeftLogical(str0, 4));
+            int2 = AdvSimd.Or(AdvSimd.ShiftRightLogical(str2, 6), AdvSimd.ShiftLeftLogical(str1, 2));
+            int3 = str2;
+
+            int0 = AdvSimd.And(int0, maskTopBits);
+            int1 = AdvSimd.And(int1, maskTopBits);
+            int2 = AdvSimd.And(int2, maskTopBits);
+            int3 = AdvSimd.And(int3, maskTopBits);
+
+            // translate
+
+            // Translate values 0..63 to the Base64 alphabet. There are five sets:
+            // #  From      To         Abs    Index  Characters
+            // 0  [0..25]   [65..90]   +65        0  ABCDEFGHIJKLMNOPQRSTUVWXYZ
+            // 1  [26..51]  [97..122]  +71        1  abcdefghijklmnopqrstuvwxyz
+            // 2  [52..61]  [48..57]    -4  [2..11]  0123456789
+            // 3  [62]      [43]       -19       12  +
+            // 4  [63]      [47]       -16       13  /
+
+            res0 = AdvSimd.Arm64.VectorTableLookup(lookup0, int0);
+            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup1, int0));
+            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup2, int0));
+            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup3, int0));
+
+            res1 = AdvSimd.Arm64.VectorTableLookup(lookup0, int1);
+            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup1, int1));
+            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup2, int1));
+            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup3, int1));
+
+            res2 = AdvSimd.Arm64.VectorTableLookup(lookup0, int2);
+            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup1, int2));
+            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup2, int2));
+            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup3, int2));
+
+            res3 = AdvSimd.Arm64.VectorTableLookup(lookup0, int3);
+            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup1, int3));
+            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup2, int3));
+            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup3, int3));
+
+            // TODO translate this quadruple VST1 to a single VST4
+            // Only assert last write
+            AssertWrite<Vector128<sbyte>>(dest + 48, destStart, destLength);
+            AdvSimd.Store(dest, res0);
+            AdvSimd.Store(dest + 16, res1);
+            AdvSimd.Store(dest + 32, res2);
+            AdvSimd.Store(dest + 48, res3);
+
+            src += 48;
+            dest += 64;
+        }
+        while (src <= srcEnd);
+
+        srcBytes = src;
+        destBytes = dest;
+    }
+
+    private static ReadOnlySpan<byte> s_encodingMap => new byte[]
+    {
+        65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83,
+        84, 85, 86, 87, 88, 89, 90, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106,
+        107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121,
+        122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 43, 47
+    };
 
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
