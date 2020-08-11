@@ -1129,6 +1129,10 @@ public static class Base64
             // check that all bits are zero:
             if (AdvSimd.Arm64.MaxAcross(classified).ToScalar() != 0U)
             {
+                Console.WriteLine(str0);
+                Console.WriteLine(str1);
+                Console.WriteLine(str2);
+                Console.WriteLine(str3);
                 Console.WriteLine("Bad data in _Vl loop");
                 break;
             }
