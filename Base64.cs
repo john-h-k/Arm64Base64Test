@@ -446,7 +446,6 @@ public static class Base64
                     if (src == srcEnd)
                         goto DoneExit;
                 }
-
             }
 
             if (maxSrcLength >= 24)
@@ -1130,6 +1129,7 @@ public static class Base64
             // check that all bits are zero:
             if (AdvSimd.Arm64.MaxAcross(classified).ToScalar() != 0U)
             {
+                Console.WriteLine("Bad data in _Vl loop");
                 break;
             }
 
