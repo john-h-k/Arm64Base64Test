@@ -978,6 +978,11 @@ public static class Base64
             Console.WriteLine(int2);
             Console.WriteLine(int3);
 
+            Console.WriteLine(lookup0);
+            Console.WriteLine(lookup1);
+            Console.WriteLine(lookup2);
+            Console.WriteLine(lookup3);
+
             res0 = AdvSimd.Arm64.VectorTableLookup(lookup0, int0);
             res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup1, int0));
             res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup2, int0));
@@ -997,6 +1002,11 @@ public static class Base64
             res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup1, int3));
             res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup2, int3));
             res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup3, int3));
+
+            Console.WriteLine(res0);
+            Console.WriteLine(res1);
+            Console.WriteLine(res2);
+            Console.WriteLine(res3);
 
             // TODO translate this quadruple VST1 to a single VST4
             // Only assert last write
