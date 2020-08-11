@@ -936,6 +936,9 @@ public static class Base64
         byte* dest = destBytes;
 
         var maskTopBits = Vector128.Create((byte)0x3F);
+        var sixteen = Vector128.Create((byte)16);
+        var thirtytwo = Vector128.Create((byte)32);
+        var fourtyeight = Vector128.Create((byte)48);
 
         Vector128<byte> lookup0, lookup1, lookup2, lookup3;
         lookup0 = ReadVector<Vector128<byte>>(s_encodingMap);
@@ -984,24 +987,24 @@ public static class Base64
             Console.WriteLine(lookup3);
 
             res0 = AdvSimd.Arm64.VectorTableLookup(lookup0, int0);
-            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup1, int0));
-            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup2, int0));
-            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup3, int0));
+            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup1, AdvSimd.Subtract(int0, sixteen)));
+            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup2, AdvSimd.Subtract(int0, thirtytwo)));
+            res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup3, AdvSimd.Subtract(int0, fourtyeight)));
 
             res1 = AdvSimd.Arm64.VectorTableLookup(lookup0, int1);
-            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup1, int1));
-            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup2, int1));
-            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup3, int1));
+            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup1, AdvSimd.Subtract(int1, sixteen)));
+            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup2, AdvSimd.Subtract(int1, thirtytwo)));
+            res1 = AdvSimd.Or(res1, AdvSimd.Arm64.VectorTableLookup(lookup3, AdvSimd.Subtract(int1, fourtyeight)));
 
             res2 = AdvSimd.Arm64.VectorTableLookup(lookup0, int2);
-            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup1, int2));
-            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup2, int2));
-            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup3, int2));
+            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup1, AdvSimd.Subtract(int2, sixteen)));
+            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup2, AdvSimd.Subtract(int2, thirtytwo)));
+            res2 = AdvSimd.Or(res2, AdvSimd.Arm64.VectorTableLookup(lookup3, AdvSimd.Subtract(int2, fourtyeight)));
 
             res3 = AdvSimd.Arm64.VectorTableLookup(lookup0, int3);
-            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup1, int3));
-            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup2, int3));
-            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup3, int3));
+            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup1, AdvSimd.Subtract(int3, sixteen)));
+            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup2, AdvSimd.Subtract(int3, thirtytwo)));
+            res3 = AdvSimd.Or(res3, AdvSimd.Arm64.VectorTableLookup(lookup3, AdvSimd.Subtract(int3, fourtyeight)));
 
             Console.WriteLine(res0);
             Console.WriteLine(res1);
