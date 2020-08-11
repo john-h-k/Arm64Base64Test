@@ -1088,6 +1088,11 @@ public static class Base64
             int3 = AdvSimd.Or(int3, AdvSimd.Arm64.VectorTableLookup(lookup0_2, str3));
             int3 = AdvSimd.Or(int3, AdvSimd.Arm64.VectorTableLookup(lookup0_3, str3));
 
+            Console.WriteLine(int0);
+            Console.WriteLine(int1);
+            Console.WriteLine(int2);
+            Console.WriteLine(int3);
+
             // Get values from 2nd LUT
             var cp0 = tmp0;
             var cp1 = tmp1;
