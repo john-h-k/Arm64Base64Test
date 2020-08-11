@@ -692,13 +692,28 @@ public static class Base64
             // 00ffffff 00eeeeFF 00ddEEEE 00DDDDDD
             // 00cccccc 00bbbbCC 00aaBBBB 00AAAAAA
 
-            Vector128<short> wideLo = AdvSimd.MultiplyWideningLower(str.GetLower(), mergeConstant0.GetLower());
-            Vector128<short> wideHi = AdvSimd.MultiplyWideningUpper(str, mergeConstant0);
+            // Vector128<short> wideLo = AdvSimd.MultiplyWideningLower(str.GetLower(), mergeConstant0.GetLower());
+            // Vector128<short> wideHi = AdvSimd.MultiplyWideningUpper(str, mergeConstant0);
 
-            wideLo = AdvSimd.Arm64.UnzipEven(wideLo, wideHi);
-            wideHi = AdvSimd.Arm64.UnzipOdd(wideLo, wideHi);
+            // wideLo = AdvSimd.Arm64.UnzipEven(wideLo, wideHi);
+            // wideHi = AdvSimd.Arm64.UnzipOdd(wideLo, wideHi);
 
-            Vector128<short> merge_ab_and_bc = AdvSimd.AddSaturate(wideLo, wideHi);
+            // Vector128<short> merge_ab_and_bc = AdvSimd.AddSaturate(wideLo, wideHi);
+
+            Vector128<short> wideLo = AdvSimd.ZeroExtendWideningLower(str.GetLower());
+            Vector128<short> wideHi = AdvSimd.ZeroExtendWideningLower(str.GetUpper());
+
+            Vector128<short> constLo = AdvSimd.SignExtendWideningLower(mergeConstant0.GetLower());
+            Vector128<short> constHi = AdvSimd.SignExtendWideningLower(mergeConstant0.GetUpper());
+
+            var mulLo = AdvSimd.Multiply(wideLo, constLo);
+            var mulHi = AdvSimd.Multiply(wideHi, constHi);
+
+            mulLo = AdvSimd.Arm64.UnzipEven(mulLo, mulHi);
+            mulHi = AdvSimd.Arm64.UnzipOdd(mulLo, mulHi);
+
+            Vector128<short> merge_ab_and_bc = AdvSimd.Add(mulLo, mulHi);
+
             // 0000kkkk LLllllll 0000JJJJ JJjjKKKK
             // 0000hhhh IIiiiiii 0000GGGG GGggHHHH
             // 0000eeee FFffffff 0000DDDD DDddEEEE
@@ -807,25 +822,30 @@ public static class Base64
             int3 = AdvSimd.Or(int3, AdvSimd.Arm64.VectorTableLookup(lookup0_3, str3));
 
             // Get values from 2nd LUT
-            tmp0 = AdvSimd.Arm64.VectorTableLookupExtension(tmp0, lookup1_0, tmp0);
-            tmp0 = AdvSimd.Or(tmp0, AdvSimd.Arm64.VectorTableLookupExtension(tmp0, lookup1_1, tmp0));
-            tmp0 = AdvSimd.Or(tmp0, AdvSimd.Arm64.VectorTableLookupExtension(tmp0, lookup1_2, tmp0));
-            tmp0 = AdvSimd.Or(tmp0, AdvSimd.Arm64.VectorTableLookupExtension(tmp0, lookup1_3, tmp0));
+            var cp0 = tmp0;
+            var cp1 = tmp1;
+            var cp2 = tmp2;
+            var cp3 = tmp3;
 
-            tmp1 = AdvSimd.Arm64.VectorTableLookupExtension(tmp1, lookup1_0, tmp1);
-            tmp1 = AdvSimd.Or(tmp1, AdvSimd.Arm64.VectorTableLookupExtension(tmp1, lookup1_1, tmp1));
-            tmp1 = AdvSimd.Or(tmp1, AdvSimd.Arm64.VectorTableLookupExtension(tmp1, lookup1_2, tmp1));
-            tmp1 = AdvSimd.Or(tmp1, AdvSimd.Arm64.VectorTableLookupExtension(tmp1, lookup1_3, tmp1));
+            tmp0 = AdvSimd.Arm64.VectorTableLookupExtension(cp0, lookup1_0, cp0);
+            tmp0 = AdvSimd.Or(cp0, AdvSimd.Arm64.VectorTableLookupExtension(cp0, lookup1_1, cp0));
+            tmp0 = AdvSimd.Or(cp0, AdvSimd.Arm64.VectorTableLookupExtension(cp0, lookup1_2, cp0));
+            tmp0 = AdvSimd.Or(cp0, AdvSimd.Arm64.VectorTableLookupExtension(cp0, lookup1_3, cp0));
 
-            tmp2 = AdvSimd.Arm64.VectorTableLookupExtension(tmp2, lookup1_0, tmp2);
-            tmp2 = AdvSimd.Or(tmp2, AdvSimd.Arm64.VectorTableLookupExtension(tmp2, lookup1_1, tmp2));
-            tmp2 = AdvSimd.Or(tmp2, AdvSimd.Arm64.VectorTableLookupExtension(tmp2, lookup1_2, tmp2));
-            tmp2 = AdvSimd.Or(tmp2, AdvSimd.Arm64.VectorTableLookupExtension(tmp2, lookup1_3, tmp2));
+            tmp1 = AdvSimd.Arm64.VectorTableLookupExtension(cp1, lookup1_0, cp1);
+            tmp1 = AdvSimd.Or(cp1, AdvSimd.Arm64.VectorTableLookupExtension(cp1, lookup1_1, cp1));
+            tmp1 = AdvSimd.Or(cp1, AdvSimd.Arm64.VectorTableLookupExtension(cp1, lookup1_2, cp1));
+            tmp1 = AdvSimd.Or(cp1, AdvSimd.Arm64.VectorTableLookupExtension(cp1, lookup1_3, cp1));
 
-            tmp3 = AdvSimd.Arm64.VectorTableLookupExtension(tmp3, lookup1_0, tmp3);
-            tmp3 = AdvSimd.Or(tmp3, AdvSimd.Arm64.VectorTableLookupExtension(tmp3, lookup1_1, tmp3));
-            tmp3 = AdvSimd.Or(tmp3, AdvSimd.Arm64.VectorTableLookupExtension(tmp3, lookup1_2, tmp3));
-            tmp3 = AdvSimd.Or(tmp3, AdvSimd.Arm64.VectorTableLookupExtension(tmp3, lookup1_3, tmp3));
+            tmp2 = AdvSimd.Arm64.VectorTableLookupExtension(cp2, lookup1_0, cp2);
+            tmp2 = AdvSimd.Or(cp2, AdvSimd.Arm64.VectorTableLookupExtension(cp2, lookup1_1, cp2));
+            tmp2 = AdvSimd.Or(cp2, AdvSimd.Arm64.VectorTableLookupExtension(cp2, lookup1_2, cp2));
+            tmp2 = AdvSimd.Or(cp2, AdvSimd.Arm64.VectorTableLookupExtension(cp2, lookup1_3, cp2));
+
+            tmp3 = AdvSimd.Arm64.VectorTableLookupExtension(cp3, lookup1_0, cp3);
+            tmp3 = AdvSimd.Or(cp3, AdvSimd.Arm64.VectorTableLookupExtension(cp3, lookup1_1, cp3));
+            tmp3 = AdvSimd.Or(cp3, AdvSimd.Arm64.VectorTableLookupExtension(cp3, lookup1_2, cp3));
+            tmp3 = AdvSimd.Or(cp3, AdvSimd.Arm64.VectorTableLookupExtension(cp3, lookup1_3, cp3));
 
             // Get final values
             str0 = AdvSimd.Or(int0, tmp0);
