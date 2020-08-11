@@ -21,7 +21,7 @@ namespace Arm64Base64Test
             var op = Base64.EncodeToUtf8(text, encoded, out _, out int encodedWritten);
             Console.WriteLine(op);
 
-            op = Base64.DecodeFromUtf8_VectorLookup(encoded, result, out _, out var written);
+            op = Base64.DecodeFromUtf8_VectorLookup(encoded.AsSpan(0, encodedWritten), result, out _, out var written);
             Console.WriteLine(op);
 
             Console.WriteLine(MemoryMarshal.Cast<byte, char>(result.AsSpan(0, written)).ToString());
