@@ -1067,6 +1067,11 @@ public static class Base64
             tmp2 = AdvSimd.SubtractSaturate(str2, offset);
             tmp3 = AdvSimd.SubtractSaturate(str3, offset);
 
+            Console.WriteLine(tmp0);
+            Console.WriteLine(tmp1);
+            Console.WriteLine(tmp2);
+            Console.WriteLine(tmp2);
+
             // Get values from 1st LUT
             int0 = AdvSimd.Arm64.VectorTableLookup(lookup0_0, str0);
             int0 = AdvSimd.Or(int0, AdvSimd.Arm64.VectorTableLookup(lookup0_1, str0));
