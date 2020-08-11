@@ -939,9 +939,9 @@ public static class Base64
 
         Vector128<byte> lookup0, lookup1, lookup2, lookup3;
         lookup0 = ReadVector<Vector128<byte>>(s_encodingMap);
-        lookup1 = ReadVector<Vector128<byte>>(s_encodingMap);
-        lookup2 = ReadVector<Vector128<byte>>(s_encodingMap);
-        lookup3 = ReadVector<Vector128<byte>>(s_encodingMap);
+        lookup1 = ReadVector<Vector128<byte>>(s_encodingMap.Slice(16));
+        lookup2 = ReadVector<Vector128<byte>>(s_encodingMap.Slice(32));
+        lookup3 = ReadVector<Vector128<byte>>(s_encodingMap.Slice(48));
 
         //while (remaining >= 48)
         do
