@@ -969,13 +969,14 @@ public static class Base64
 
             // translate
 
-            // Translate values 0..63 to the Base64 alphabet. There are five sets:
-            // #  From      To         Abs    Index  Characters
-            // 0  [0..25]   [65..90]   +65        0  ABCDEFGHIJKLMNOPQRSTUVWXYZ
-            // 1  [26..51]  [97..122]  +71        1  abcdefghijklmnopqrstuvwxyz
-            // 2  [52..61]  [48..57]    -4  [2..11]  0123456789
-            // 3  [62]      [43]       -19       12  +
-            // 4  [63]      [47]       -16       13  /
+            // The bits have now been shifted to the right locations;
+            // translate their values 0..63 to the Base64 alphabet.
+            // Use a 64-byte table lookup:
+
+            Console.WriteLine(int0);
+            Console.WriteLine(int1);
+            Console.WriteLine(int2);
+            Console.WriteLine(int3);
 
             res0 = AdvSimd.Arm64.VectorTableLookup(lookup0, int0);
             res0 = AdvSimd.Or(res0, AdvSimd.Arm64.VectorTableLookup(lookup1, int0));
